@@ -1,0 +1,242 @@
+<html lang="en-us"><head>
+    <meta charset="utf-8">
+    <title>VSO Git</title>
+    <style>
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <br><p ><h1>Construct better Azure DevOps Raw Urls</h1><br>  Either:
+        <ol>
+            <lI> enter in your current DevOps/VSO URL</lI>
+            <li> manually construct it in the below table.</li></ol></p>
+    <p>Two things to Note</p>
+    <ul>
+        <li>Directory paths should end in a '/' and files paths should not </li>
+        <ul>
+        <li>If copying a path that is not a file from DevOps/VSO URL, you need to remove the trailing '/' 
+            <ul><li> '/' is auto added when the last location does not contain a '.' in the filename</li></ul></li></ul>
+        <li>You need to specify an access token.</li>
+    </ul>
+    <div id="advancedOptions">
+      
+       Azure DevOps URL:  <input type="text" id="vsoInput" size="120" value="https://oneeyedelf1.visualstudio.com/project3/_git/vso_git_demo">
+    
+      <table>
+        <tbody><tr>
+          <th>Option</th>
+          <th>Values</th>
+        </tr>
+        <tr>
+          <td>
+            <label for="organizationInput">Organization</label>
+          </td>
+          <td>
+              <input type="text" id="organizationInput" size="120" value="">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="projectInput">Project</label>
+          </td>
+          <td>
+              <input type="text" id="projectInput" size="120" value="">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="repositoryInput">Repository</label>
+          </td>
+          <td>
+            <input type="text" size="120" id="repositoryInput" value="">
+          </td>
+        </tr>
+        <tr>
+            <td>
+              <label for="versionType">VersionType</label>
+            </td>
+            <td>
+                <input type="radio" id="versionTypeBranch" name="versionType" value="branch" checked> branch<br>
+                <input type="radio" id="versionTypeCommit" name="versionType" value="commit"> commit<br>
+                <input type="radio" id="versionTypeTag" name="versionType" value="tag"> tag
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <label for="branchInput">Version</label>
+            </td>
+            <td>
+              <input type="text" size="120" id="branchInput" value="">
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <label for="pathInRepositoryInput">Path (in repository)</label>
+            </td>
+            <td>
+              <input type="text" size="120" id="pathInRepositoryInput" value="/">
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <label for="accessTokenInput">Access Token</label>
+            </td>
+            <td>
+              <input type="text" size="120" id="accessTokenInput" value="lcwfr46dwkx6vkxv3jxwkjwfqedawf7a243ngnjoggytt37xgdja">
+            </td>
+        </tr>
+      </tbody></table>
+      <p>Raw url: <a id="rawUrl" href=""></a></p>
+      <p>Website url: <a id="normalUrl" href=""></a></p>
+      <br>
+      <br>
+      <p>For source see <a href="https://github.com/KnicKnic/vso_git">https://github.com/KnicKnic/vso_git</a></p>
+    
+
+  </div>
+    <script type="module">
+  
+      // various html elements
+      let vsoInput = document.getElementById("vsoInput");
+      let organizationInput = document.getElementById("organizationInput")
+      let projectInput = document.getElementById("projectInput");
+      let repositoryInput = document.getElementById("repositoryInput");
+      let branchInput = document.getElementById("branchInput");
+      let pathInRepositoryInput = document.getElementById("pathInRepositoryInput");
+      let accessTokenInput = document.getElementById('accessTokenInput');
+      let rawUrl = document.getElementById('rawUrl');
+      let normalUrl = document.getElementById("normalUrl");
+      let versionTypeBranch = document.getElementById("versionTypeBranch");
+      let versionTypeCommit = document.getElementById("versionTypeCommit");
+      let versionTypeTag = document.getElementById("versionTypeTag");
+      let azureCodeToVersionType = {"GB": "branch", "GC": "commit", "GT": "tag"}
+  
+      let getVersionType = function(){
+          if(versionTypeBranch.checked){
+              return "branch"
+          }
+          if(versionTypeCommit.checked){
+              return "commit"
+          }
+          if(versionTypeTag.checked){
+              return "tag"
+          }
+          return "branch"
+      }
+      // GB GC or GT for branch, commit or tag
+      let setVersionType = function(versionType){
+          versionTypeBranch.checked = versionType == "branch"
+          versionTypeCommit.checked = versionType == "commit"
+          versionTypeTag.checked = versionType == "tag"
+      }
+
+      // deal with input urls
+      {        
+        let host = window.location.host;
+        let protocol = 'https://'
+        if(host == ''){
+            host = 'localhost:8080'
+        }
+        if(host =="localhost:8080"){            
+            protocol = 'http://'
+        }
+        let calculateShareUrls = function(){
+          let normalPath = "/" + accessTokenInput.value + "/" + getVersionType() + '/' + organizationInput.value + "/" + projectInput.value + "/" + repositoryInput.value + "/" + encodeURIComponent(branchInput.value) + pathInRepositoryInput.value
+          let rawPath = "/raw" + normalPath
+          
+          rawUrl.href=protocol  + host + rawPath
+          rawUrl.innerText = rawUrl.href
+          
+          normalUrl.href=protocol + host + normalPath
+          normalUrl.innerText = normalUrl.href  
+        }
+  
+        organizationInput.oninput = calculateShareUrls;
+        projectInput.oninput = calculateShareUrls;
+        repositoryInput.oninput = calculateShareUrls;
+        branchInput.oninput = calculateShareUrls;
+        pathInRepositoryInput.oninput = calculateShareUrls;
+        accessTokenInput.oninput = calculateShareUrls;
+        versionTypeBranch.oninput = calculateShareUrls;
+        versionTypeCommit.oninput = calculateShareUrls;
+        versionTypeTag.oninput = calculateShareUrls;
+        
+        let parseVsoUrl = function(){
+
+            
+            let inputUrl = new URL(vsoInput.value)
+            let org = ''
+            let project = ''
+            let repo = ''
+            let path = '/'
+            let branch = 'master'
+            let versionType = 'branch'
+            if(inputUrl.host =="dev.azure.com"){
+                let pathChunks = inputUrl.pathname.split('/')
+                org = pathChunks[1]
+                if(pathChunks.length == 4){
+                    project = pathChunks[3]
+                    repo = project
+                } else{
+                    project = pathChunks[2]
+                    repo = pathChunks[4]
+                }
+            }
+            else if (inputUrl.host.includes(".visualstudio.com")){
+
+                let pathChunks = inputUrl.pathname.split('/')
+                org = inputUrl.host.split('.')[0]
+                if(pathChunks.length == 3){
+                    project = pathChunks[2]
+                    repo = project
+                } else{
+                    project = pathChunks[1]
+                    repo = pathChunks[3]
+                }
+            }
+            
+            if(inputUrl.searchParams){
+                if(inputUrl.searchParams.get("version")){
+                    branch = inputUrl.searchParams.get("version")
+                    versionType = azureCodeToVersionType[branch.substr(0,2).toUpperCase()]
+                    branch = branch.substr(2)
+                }
+                if(inputUrl.searchParams.get("path")){
+                    path = inputUrl.searchParams.get("path")
+                }
+            }
+            setVersionType(versionType)
+
+            let chunkedPath = path.split('/')
+            let lastChunkedPath = chunkedPath[chunkedPath.length-1]
+            if(!lastChunkedPath.includes('.')){
+                if(path[path.length-1] != '/'){
+                    path = path + '/'
+                }
+            }
+
+            organizationInput.value = org
+            projectInput.value = project
+            repositoryInput.value = repo
+            branchInput.value = branch
+            pathInRepositoryInput.value = path
+            
+            calculateShareUrls()
+        }
+        
+        vsoInput.oninput = parseVsoUrl
+        parseVsoUrl();
+      }
+  
+      //generate zips
+      
+    </script>
+  
+  
+  </body></html>
