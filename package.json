@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
-    "mime-types": "^2.1.32",
+    "mime-types": "^2.1.33",
     "node-fetch": "^2.6.1"
   }
 }
