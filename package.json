@@ -9,7 +9,7 @@
   "author": "Nick Maliwacki",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.18.0",
     "mime-types": "^2.1.32",
     "node-fetch": "^2.6.1"
   }
